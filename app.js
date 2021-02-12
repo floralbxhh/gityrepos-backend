@@ -32,3 +32,21 @@ app.use(express.urlencoded({ extended: false }));
 app.use("/api/users", usersRoutes);
 app.use("/oauth", oauthRoutes);
 app.use("/starred", starredRoutes);
+
+//Handling undefined routes
+app.use(function (req, res) {
+  res.status(404).json({
+    success: false,
+    message: "bad request",
+  });
+});
+
+//Adding Express Error Handler
+app.use((error, req, res, next) => {
+  res.status(error.status || 500);
+  res.json({
+    success: false,
+    message: error.message,
+    stack: error.stack,
+  });
+});
