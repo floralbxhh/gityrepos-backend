@@ -1,28 +1,33 @@
 const asyncHandler = require("express-async-handler");
 const userCtrl = require("../controllers/user.controller");
 const oauthCtrl = require("../controllers/oauth.controller");
+const {encrypt, decrypt} = require("../helpers/encryption")
 
 const router = require("express").Router();
 module.exports = router;
 
-router.get("/", (req, res) => {
-  res.redirect(
-    `https://github.com/login/oauth/authorize?client_id=${process.env.GITHUB_CLIENTID}&scope=user&allow_signup=false`
-  );
-});
+router.get("/", asyncHandler(async(req, res) => {
+  //Make sure we have the 'code' query parameter
+  if (req.query.code) {
+    const token = await oauthCtrl.getUserToken(req.query.code);
+    const cryptedToken = encrypt(token);
+    res.json({ success: true, cryptedKey: cryptedToken });
+  } else{
+    res.status(400).json({ success: false, message: "bad request" });
+  }
+}));
 
-router.get(
+router.put(
   "/authenticate",
-  asyncHandler(async (req, res, next) => {
-    //Make sure we have the 'code' query parameter
-    if (req.query.code) {
-      const token = await oauthCtrl.getUserToken(req.query.code);
-
+  asyncHandler(async (req, res) => {
+    if (req.body.cryptedKey) {
+      const token = decrypt(req.body.cryptedKey);
       const userData = await oauthCtrl.getUserData(token);
-
       const user = await storeUser(userData);
 
-      res.json({ success: true, data: user });
+      console.log(userData);
+
+      res.json({ success: true, userdata: user });
     } else {
       res.status(400).json({ success: false, message: "bad request" });
     }

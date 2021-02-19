@@ -7,7 +7,6 @@ const Starred = mongoose.model(
       githubRepoId: {
         type: Number,
         required: true,
-        unique: true,
       },
       name: {
         type: String,
@@ -24,6 +23,13 @@ const Starred = mongoose.model(
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
       },
+      htmlUrl: {
+        type: String,
+        required: true
+      },
+      createdBy: {
+        type: String,
+      }
     },
     {
       timestamps: true,

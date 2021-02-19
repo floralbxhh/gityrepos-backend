@@ -40,6 +40,8 @@ const getStarredAPI = async (username, userId) => {
         fullname: o.full_name.toString(),
         description: o.description,
         userId: userId,
+        htmlUrl: o.html_url,
+        createdBy: o.owner.login,
       };
     });
 

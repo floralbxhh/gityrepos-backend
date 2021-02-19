@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const mongoose = require("mongoose");
+const mongoose= require("mongoose");
 const cors = require("cors");
 
 //Routes
@@ -20,7 +20,7 @@ mongoose
     useCreateIndex: true,
     useFindAndModify: false,
   })
-  .then(() => app.listen(PORT))
+  .then(() => { app.listen(PORT); console.log(`Listening on port ${PORT}`)})
   .catch((err) => console.error(err));
 
 //Middlewares
@@ -33,20 +33,6 @@ app.use("/api/users", usersRoutes);
 app.use("/oauth", oauthRoutes);
 app.use("/starred", starredRoutes);
 
-//Handling undefined routes
-app.use(function (req, res) {
-  res.status(404).json({
-    success: false,
-    message: "bad request",
-  });
-});
-
-//Adding Express Error Handler
 app.use((error, req, res, next) => {
-  res.status(error.status || 500);
-  res.json({
-    success: false,
-    message: error.message,
-    stack: error.stack,
-  });
-});
+  res.status(400).json({error: error});
+})
